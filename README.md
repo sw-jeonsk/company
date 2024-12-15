@@ -6,10 +6,10 @@
 - ## command
   - host run
     - ```uvicorn main:app --reload```
-    - swagger : http://127.0.0.1:8000/docs
+    - api 명세 : http://127.0.0.1:8000/docs
   - docker-compose run
     - ```docker-compose   up --build -d```
-    - swagger : http://127.0.0.1:9090/docs
+    - api 명세 : http://127.0.0.1:9090/docs
 
 - ## 요구사항 분석
   - 나라는 자유롭게 추가가 가능한 것으로 보임
