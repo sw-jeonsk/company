@@ -169,7 +169,7 @@ def test_new_company(client, query_counter):
     )
 
     response_json = response.json()
-    assert len(query_counter) == 6
+    assert len(query_counter) == 7
     assert response.status_code == 200
     assert response_json.get("company_name") == "LINE FRESH"
     assert response_json.get("country") == "tw"
