@@ -1,0 +1,46 @@
+version: '3.9'
+
+services:
+
+
+  postgres_db:
+    hostname: company_postgres_db
+    container_name: company_db
+    image: postgres:16.3-alpine3.19
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_PORT=6432
+    networks:
+      - company_network
+    volumes:
+      - "./scripts/create_db.sql:/docker-entrypoint-initdb.d/create_db.sql"
+      - "./config/postgresql.conf:/docker-entrypoint-initdb.d/postgresql.conf"
+    ports:
+      - "6432:6432"
+    command: postgres -c config_file=/docker-entrypoint-initdb.d/postgresql.conf
+
+  company_server:
+    hostname: company_server
+    container_name: company_server
+    image: company_server
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "9090:9090"
+    environment:
+      - DB_HOST=company_postgres_db
+      - DB_NAME=company_db
+      - DB_USER=company_admin
+      - DB_PASSWORD=test1234!
+      - DB_PORT=6432
+    depends_on:
+      - postgres_db
+    networks:
+      - company_network
+    restart: on-failure
+    entrypoint: ["sh", "/home/service/docker-entrypoint.sh"]
+
+networks:
+  company_network:
+    driver: bridge
