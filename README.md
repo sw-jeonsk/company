@@ -2,13 +2,15 @@
 
 - ## version
   - python:3.11.9
+  - postgresql 16.3
 
 - ## command
   - host run
+    - **scripts > create_db.sql postgresql에서 계정 및 DB 생성 진행**
     - ```uvicorn main:app --reload```
     - api 명세 : http://127.0.0.1:8000/docs
   - docker-compose run
-    - ```docker-compose   up --build -d```
+    - ```docker-compose up --build -d```
     - api 명세 : http://127.0.0.1:9090/docs
 
 - ## 요구사항 분석
