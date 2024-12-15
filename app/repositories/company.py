@@ -1,7 +1,8 @@
 
-from sqlalchemy.orm import Session
+from sqlalchemy import ColumnElement, case
+from sqlalchemy.orm import Session, aliased
 
-from app.models import CompanyModel, CompanyNameModel
+from app.models import CompanyModel, CompanyNameModel, CompanyTagModel
 
 
 def create_company(code, db: Session) -> CompanyModel:
@@ -17,3 +18,5 @@ def get_company_by_code(code, db: Session) -> None | CompanyModel:
 
 def get_company_by_company_name(company_name, db: Session) -> None | CompanyModel:
     return db.query(CompanyModel).join(CompanyNameModel, CompanyNameModel.company_id == CompanyModel.id).filter(CompanyNameModel.name.__eq__(company_name)).first()
+
+

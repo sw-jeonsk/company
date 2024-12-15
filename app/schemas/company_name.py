@@ -23,7 +23,7 @@ class CompanyNameSchema(BaseModel):
         )
 
 
-class CompanyNameAutoCompeteSchema(BaseModel):
+class OnlyCompanyNameSchema(BaseModel):
     name: str = Field(..., alias="company_name")
 
     class Config:

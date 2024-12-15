@@ -2,23 +2,16 @@ from typing import List, Type
 
 from sqlalchemy.orm import Session
 
-from app.models import CompanyNameModel, CompanyTagModel
+from app.models import CompanyTagModel
 from app.repositories.company import get_company_by_company_name
-from app.repositories.company_name import get_company_names_by_tag_name
+from app.repositories.company_name import get_company_name_by_tag_name_country
 from app.repositories.company_tag import create_company_tag, get_company_tag_name_by_company_name, delete_company_tag_by_company_name_company_tag_name
+from app.schemas.company_name import OnlyCompanyNameSchema
 from app.schemas.company_tag import NewTagSchema
 
 
-def get_search_tag_name_service(query: str, x_wanted_language: str, db: Session) -> list[Type[CompanyNameModel]]:
-    company_names = get_company_names_by_tag_name(query, db)
-    results = []
-    for company_name in company_names:
-        if company_name.company_id in results:
-            continue
-        if company_name.country == x_wanted_language:
-            results.append(company_name)
-
-    return company_names
+def get_search_tag_name_service(query: str, x_wanted_language: str, db: Session) -> list[Type[OnlyCompanyNameSchema]]:
+    return get_company_name_by_tag_name_country(query, x_wanted_language, db)
 
 
 def new_tag_service(company_name: str, tags: List[NewTagSchema], db: Session) -> None:

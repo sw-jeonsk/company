@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
 from app.schemas.company import CreateCompanySchema
-from app.schemas.company_name import CompanyNameAutoCompeteSchema, CompanyNameSchema
+from app.schemas.company_name import OnlyCompanyNameSchema, CompanyNameSchema, OnlyCompanyNameSchema
 from app.schemas.company_tag import NewTagSchema
 from app.services.company import create_company_service
 from app.services.company_name import get_company_name_service, get_company_name_autocomplete_service, get_company_search_service
@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get("/search", response_model=List[CompanyNameAutoCompeteSchema])
+@router.get("/search", response_model=List[OnlyCompanyNameSchema])
 def company_name_autocomplete(query, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     1. 회사명 자동완성
@@ -50,7 +50,7 @@ def new_company(company: CreateCompanySchema, x_wanted_language: str = Header(..
     return CompanyNameSchema.from_orm_with_tag_names(x_wanted_language, company_name)
 
 
-@router.get("/tags", response_model=List[CompanyNameSchema])
+@router.get("/tags", response_model=List[OnlyCompanyNameSchema])
 def search_tag_name(query: str, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     4.  태그명으로 회사 검색
@@ -60,7 +60,7 @@ def search_tag_name(query: str, x_wanted_language: str = Header(...), db: Sessio
     ko언어가 없을경우 노출가능한 언어로 출력합니다.
     동일한 회사는 한번만 노출이 되어야합니다.
     """
-    company_names = get_search_tag_name_service(query, x_wanted_language, db)
+    return get_search_tag_name_service(query, x_wanted_language, db)
     pass
 
 

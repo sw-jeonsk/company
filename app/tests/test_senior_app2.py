@@ -75,6 +75,8 @@ def test_company_name_autocomplete(client, query_counter):
     1. 회사명 자동완성
     회사명의 일부만 들어가도 검색이 되어야 합니다.
     header의 x-wanted-language 언어값에 따라 해당 언어로 출력되어야 합니다.
+
+    없는 회사 이름으로 조회시, 200 떨어지고, 응답값은 빈값을 출력
     """
 
     response = client.get("/search?query=링크", headers=[("x-wanted-language", "ko")])
@@ -174,25 +176,25 @@ def test_new_company(client, query_counter):
     assert response_json.get("tags") == ["tag_1", "tag_8", "tag_15"]
 
 
-# def test_search_tag_name(client):
-#     """
-#     4.  태그명으로 회사 검색
-#     태그로 검색 관련된 회사가 검색되어야 합니다.
-#     다국어로 검색이 가능해야 합니다.
-#     일본어 태그로 검색을 해도 language가 ko이면 한국 회사명이 노출이 되어야 합니다.
-#     ko언어가 없을경우 노출가능한 언어로 출력합니다.
-#     동일한 회사는 한번만 노출이 되어야합니다.
-#     """
-#     response = client.get("/tags?query=タグ_22", headers=[("x-wanted-language", "ko")])
-#     response_json = response.json()
-#     pass
-#     # assert [company["company_name"] for company in searched_companies] == [
-#     #     "딤딤섬 대구점",
-#     #     "마이셀럽스",
-#     #     "Rejoice Pregnancy",
-#     #     "삼일제약",
-#     #     "투게더앱스",
-#     # ]
+def test_search_tag_name(client):
+    """
+    4.  태그명으로 회사 검색
+    태그로 검색 관련된 회사가 검색되어야 합니다.
+    다국어로 검색이 가능해야 합니다.
+    일본어 태그로 검색을 해도 language가 ko이면 한국 회사명이 노출이 되어야 합니다.
+    ko언어가 없을경우 노출가능한 언어로 출력합니다.
+    동일한 회사는 한번만 노출이 되어야합니다.
+    """
+    response = client.get("/tags?query=タグ_22", headers=[("x-wanted-language", "ko")])
+    response_json = response.json()
+    assert response.status_code == 200
+    assert response_json == [
+        {"company_name": "딤딤섬 대구점"},
+        {"company_name": "마이셀럽스"},
+        {"company_name": "Rejoice Pregnancy"},
+        {"company_name": "삼일제약"},
+        {"company_name": "투게더앱스"}
+    ]
 
 
 def test_new_tag(client):

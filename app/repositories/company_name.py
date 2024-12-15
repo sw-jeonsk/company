@@ -1,6 +1,10 @@
 from typing import List, Dict, Type
-from sqlalchemy.orm import Session
+
+from sqlalchemy import case
+from sqlalchemy.orm import Session, aliased
+
 from app.models import CompanyNameModel, CompanyModel, CompanyTagModel
+from app.schemas.company_name import OnlyCompanyNameSchema
 
 
 def create_company_names(company_id: int, company_name: Dict, db: Session) -> List[CompanyNameModel]:
@@ -22,13 +26,35 @@ def get_company_name_contains_by_country(query, country, db: Session) -> list[Ty
     return db.query(CompanyNameModel).filter(CompanyNameModel.name.ilike(f'%{query}%'), CompanyNameModel.country.__eq__(country)).all()
 
 
-def get_company_names_by_tag_name(name, db: Session) -> list[Type[CompanyNameModel]]:
-    return db.query(
+def get_company_by_tag_name(name, db: Session) -> list[Type[CompanyNameModel]]:
+    data = db.query(
         CompanyNameModel
     ).outerjoin(
-        CompanyModel, CompanyNameModel.company_id == CompanyModel.id
+        CompanyTagModel, CompanyTagModel.company_id == CompanyNameModel.company_id
+    ).filter(
+        CompanyTagModel.name == name,
+    )
+    return data.all()
+
+
+def get_company_name_by_tag_name_country(name, country, db: Session):
+
+    country_name = aliased(CompanyNameModel)
+    no_country_name = aliased(CompanyNameModel)
+
+    company_name_case = case(
+(country_name.country == country, country_name.name),
+        else_=no_country_name.name
+    )
+    query = db.query(
+        CompanyModel.id.label("company_id"), company_name_case.label("company_name")
+    ).outerjoin(
+        country_name, (country_name.company_id == CompanyModel.id) & (country_name.country == country)
+    ).outerjoin(
+        no_country_name, no_country_name.company_id == CompanyModel.id
     ).outerjoin(
         CompanyTagModel, CompanyTagModel.company_id == CompanyModel.id
     ).filter(
         CompanyTagModel.name == name,
-    ).order_by(CompanyNameModel.company_id.asc()).all()
+    ).group_by(CompanyModel.id,  "company_name")
+    return [OnlyCompanyNameSchema(name=row[1]) for row in query.all()]
