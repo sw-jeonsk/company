@@ -44,7 +44,7 @@ class CreateCompany(BaseModel):
 
 
 class CompanyResponse(BaseModel):
-    name: str
+    company_name: str
     country: str
     tags: List[CompanyTag] | List[str]
 
@@ -56,6 +56,6 @@ class CompanyResponse(BaseModel):
         return cls(
             id=company_name.id,
             country=company_name.country,
-            name=company_name.name,
+            company_name=company_name.name,
             tags=[tag.name for tag in company_name.company.tags if tag.country == country]
         )

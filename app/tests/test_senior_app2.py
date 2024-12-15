@@ -101,7 +101,7 @@ def test_company_search(client, query_counter):
     assert len(query_counter) == 4
     assert response.status_code == 200
     assert response_json == {
-        "name": "원티드랩",
+        "company_name": "원티드랩",
         "country": "ko",
         "tags": [
             "태그_4",
@@ -164,7 +164,7 @@ def test_new_company(client, query_counter):
     response_json = response.json()
     assert len(query_counter) == 6
     assert response.status_code == 200
-    assert response_json.get("name") == "LINE FRESH"
+    assert response_json.get("company_name") == "LINE FRESH"
     assert response_json.get("country") == "tw"
     assert response_json.get("tags") == ["tag_1", "tag_8", "tag_15"]
 
@@ -217,7 +217,7 @@ def test_new_tag(client):
     )
     response_json = response.json()
     assert response.status_code == 200
-    assert response_json.get("name") == "Wantedlab"
+    assert response_json.get("company_name") == "Wantedlab"
     assert response_json.get("tags") == ["tag_4", "tag_20", "tag_16", "tag_50"]
 
 
@@ -232,7 +232,7 @@ def test_delete_tag(client):
     )
     response_json = response.json()
     assert response.status_code == 200
-    assert response_json.get("name") == "Wantedlab"
+    assert response_json.get("company_name") == "Wantedlab"
     assert response_json.get("tags") == [
         "tag_4",
         "tag_20",
