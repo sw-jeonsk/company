@@ -19,11 +19,18 @@ def get_company_tag_name_by_company_name(company_name: str, db: Session) -> List
 
 
 def delete_company_tag_by_company_name_company_tag_name(company_name: str, tag_name: str, db: Session) -> None:
-    subquery = db.query(CompanyModel.id).filter(CompanyModel.id == CompanyNameModel.company_id, CompanyNameModel.name.__eq__(company_name)).subquery()
+    subquery = db.query(
+        CompanyModel.id
+    ).filter(
+        CompanyModel.id == CompanyNameModel.company_id, CompanyNameModel.name.__eq__(company_name)
+    ).subquery()
+
     company_tags = db.query(
         CompanyTagModel
     ).join(
         CompanyNameModel, CompanyNameModel.company_id == CompanyTagModel.company_id
-    ).filter(CompanyTagModel.company_id.in_(subquery), CompanyTagModel.name.__eq__(tag_name)).all()
+    ).filter(
+        CompanyTagModel.company_id.in_(subquery), CompanyTagModel.name.__eq__(tag_name)
+    ).all()
     for obj in company_tags:
         db.delete(obj)

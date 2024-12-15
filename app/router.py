@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
 from app.schemas.company import CreateCompanySchema
-from app.schemas.company_name import OnlyCompanyNameSchema, CompanyNameSchema, OnlyCompanyNameSchema
+from app.schemas.company_name import CompanyNameSchema, OnlyCompanyNameSchema
 from app.schemas.company_tag import NewTagSchema
 from app.services.company import create_company_service
 from app.services.company_name import get_company_name_service, get_company_name_autocomplete_service, get_company_search_service

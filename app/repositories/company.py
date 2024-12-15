@@ -1,8 +1,5 @@
-
-from sqlalchemy import ColumnElement, case
-from sqlalchemy.orm import Session, aliased
-
-from app.models import CompanyModel, CompanyNameModel, CompanyTagModel
+from sqlalchemy.orm import Session
+from app.models import CompanyModel, CompanyNameModel
 
 
 def create_company(code, db: Session) -> CompanyModel:

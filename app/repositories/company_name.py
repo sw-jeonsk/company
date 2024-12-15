@@ -23,7 +23,11 @@ def get_company_name_by_name(name, db: Session) -> None | CompanyNameModel:
 
 
 def get_company_name_contains_by_country(query, country, db: Session) -> list[Type[CompanyNameModel]]:
-    return db.query(CompanyNameModel).filter(CompanyNameModel.name.ilike(f'%{query}%'), CompanyNameModel.country.__eq__(country)).all()
+    return db.query(
+        CompanyNameModel
+    ).filter(
+        CompanyNameModel.name.ilike(f'%{query}%'), CompanyNameModel.country.__eq__(country)
+    ).all()
 
 
 def get_company_by_tag_name(name, db: Session) -> list[Type[CompanyNameModel]]:
