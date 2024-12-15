@@ -6,6 +6,7 @@
 - ## command
   - host run
     - ```uvicorn main:app --reload```
+    - swagger : http://127.0.0.1:8000/docs
   - docker-compose run
     - ```docker-compose   up --build -d```
     - swagger : http://127.0.0.1:9090/docs
