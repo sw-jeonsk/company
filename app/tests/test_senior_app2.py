@@ -1,7 +1,7 @@
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import Engine, event
-from app import models
+from app.models import CompanyModel, CompanyNameModel, CompanyTagModel
 from db.database import get_db, Base
 from db.test_database import engine, TestingSessionLocal
 from main import app
@@ -56,16 +56,16 @@ def set_init_db(db):
     countries = ["ko", "en", "ja"]
     for row in df.iter_rows():
         row = dict(zip(df.columns, row))
-        _company = models.Company(code=row.get("code"))
+        _company = CompanyModel(code=row.get("code"))
         db.add(_company)
         db.flush()
         db.add_all([
-            models.CompanyName(company_id=_company.id, country=country, name=row.get(f"company_{country}")) for country in countries if row.get(f"company_{country}")
+            CompanyNameModel(company_id=_company.id, country=country, name=row.get(f"company_{country}")) for country in countries if row.get(f"company_{country}")
         ])
         company_tags = []
         for country in countries:
             if tags := row.get(f"tag_{country}"):
-                company_tags.extend([models.CompanyTag(company_id=_company.id, country=country, name=tag) for tag in tags.split("|")])
+                company_tags.extend([CompanyTagModel(company_id=_company.id, country=country, name=tag) for tag in tags.split("|")])
         db.add_all(company_tags)
     db.commit()
 
@@ -83,9 +83,14 @@ def test_company_name_autocomplete(client, query_counter):
     assert len(query_counter) == 1
     assert response.status_code == 200
     assert response_json == [
-        {"name": "주식회사 링크드코리아"},
-        {"name": "스피링크"},
+        {"company_name": "주식회사 링크드코리아"},
+        {"company_name": "스피링크"},
     ]
+
+    response = client.get("/search?query=없는회사", headers=[("x-wanted-language", "ko")])
+    response_json = response.json()
+    assert response.status_code == 200
+    assert response_json == []
 
 
 def test_company_search(client, query_counter):

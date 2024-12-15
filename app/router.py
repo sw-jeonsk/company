@@ -3,9 +3,9 @@ from typing import List
 from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
-from app.schemas.company import CreateCompany, CompanyResponse
-from app.schemas.company_name import OnlyCompanyName
-from app.schemas.company_tag import NewTag
+from app.schemas.company import CreateCompanySchema
+from app.schemas.company_name import CompanyNameAutoCompeteSchema, CompanyNameSchema
+from app.schemas.company_tag import NewTagSchema
 from app.services.company import create_company_service
 from app.services.company_name import get_company_name_service, get_company_name_autocomplete_service, get_company_search_service
 from app.services.company_tag import get_search_tag_name_service, new_tag_service, delete_tag_service
@@ -17,7 +17,7 @@ router = APIRouter(
 )
 
 
-@router.get("/search", response_model=List[OnlyCompanyName])
+@router.get("/search", response_model=List[CompanyNameAutoCompeteSchema])
 def company_name_autocomplete(query, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     1. 회사명 자동완성
@@ -27,19 +27,19 @@ def company_name_autocomplete(query, x_wanted_language: str = Header(...), db: S
     return get_company_name_autocomplete_service(query, x_wanted_language, db)
 
 
-@router.get("/companies/{company_name}", response_model=CompanyResponse)
+@router.get("/companies/{company_name}", response_model=CompanyNameSchema)
 def company_search(company_name: str, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     2. 회사 이름으로 회사 검색
     header의 x-wanted-language 언어값에 따라 해당 언어로 출력되어야 합니다.
     """
     company_name = get_company_search_service(company_name, x_wanted_language, db)
-    return CompanyResponse.from_orm_with_tag_names(x_wanted_language, company_name)
+    return CompanyNameSchema.from_orm_with_tag_names(x_wanted_language, company_name)
 
 
-@router.post("/companies", response_model=CompanyResponse)
 @transactional
-def new_company(company: CreateCompany, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
+@router.post("/companies", response_model=CompanyNameSchema)
+def new_company(company: CreateCompanySchema, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     3.  새로운 회사 추가
     새로운 언어(tw)도 같이 추가 될 수 있습니다.
@@ -47,10 +47,10 @@ def new_company(company: CreateCompany, x_wanted_language: str = Header(...), db
     """
     company = create_company_service(company, db)
     company_name = get_company_name_service(company, x_wanted_language, db)
-    return CompanyResponse.from_orm_with_tag_names(x_wanted_language, company_name)
+    return CompanyNameSchema.from_orm_with_tag_names(x_wanted_language, company_name)
 
 
-@router.get("/tags", response_model=List[CompanyResponse])
+@router.get("/tags", response_model=List[CompanyNameSchema])
 def search_tag_name(query: str, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     4.  태그명으로 회사 검색
@@ -64,20 +64,20 @@ def search_tag_name(query: str, x_wanted_language: str = Header(...), db: Sessio
     pass
 
 
-@router.put("/companies/{company_name}/tags", response_model=CompanyResponse)
 @transactional
-def new_tag(company_name: str, tags: List[NewTag], x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
+@router.put("/companies/{company_name}/tags", response_model=CompanyNameSchema)
+def new_tag(company_name: str, tags: List[NewTagSchema], x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     5.  회사 태그 정보 추가
     저장 완료후 header의 x-wanted-language 언어값에 따라 해당 언어로 출력되어야 합니다.
     """
     new_tag_service(company_name, tags, db)
     company_name = get_company_search_service(company_name, x_wanted_language, db)
-    return CompanyResponse.from_orm_with_tag_names(x_wanted_language, company_name)
+    return CompanyNameSchema.from_orm_with_tag_names(x_wanted_language, company_name)
 
 
-@router.delete("/companies/{company_name}/tags/{tag_name}", response_model=CompanyResponse)
 @transactional
+@router.delete("/companies/{company_name}/tags/{tag_name}", response_model=CompanyNameSchema)
 def delete_tag(company_name: str, tag_name: str, x_wanted_language: str = Header(...), db: Session = Depends(get_db)):
     """
     6.  회사 태그 정보 삭제
@@ -85,4 +85,4 @@ def delete_tag(company_name: str, tag_name: str, x_wanted_language: str = Header
     """
     delete_tag_service(company_name, tag_name, db)
     company_name = get_company_search_service(company_name, x_wanted_language, db)
-    return CompanyResponse.from_orm_with_tag_names(x_wanted_language, company_name)
+    return CompanyNameSchema.from_orm_with_tag_names(x_wanted_language, company_name)

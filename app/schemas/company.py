@@ -2,10 +2,8 @@ from typing import Dict, List
 from pydantic import BaseModel, Field, ValidationError
 from pydantic.v1 import root_validator
 
-from app.schemas.company_tag import CompanyTag
 
-
-class CreateCompany(BaseModel):
+class CreateCompanySchema(BaseModel):
     code: str = Field(
         description="회사 이름을 대표하는 이름",
         example="라인"
@@ -41,21 +39,3 @@ class CreateCompany(BaseModel):
             if country := list((set(tag_name.keys()) - set(company_name.keys()))):
                 raise ValidationError(f"잘못된 tag 국가 코드 입니다. {', '.join(country)}")
         return values
-
-
-class CompanyResponse(BaseModel):
-    company_name: str
-    country: str
-    tags: List[CompanyTag] | List[str]
-
-    class Config:
-        from_attributes = True
-
-    @classmethod
-    def from_orm_with_tag_names(cls, country, company_name):
-        return cls(
-            id=company_name.id,
-            country=company_name.country,
-            company_name=company_name.name,
-            tags=[tag.name for tag in company_name.company.tags if tag.country == country]
-        )
